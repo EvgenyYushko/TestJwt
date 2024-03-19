@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using JwtAuthentication.Server.BusinessLogicLayer;
-using JwtAuthentication.Server.DataAccessLayer;
 using JwtAuthentication.Server.ServiceLayer.Services;
 
 namespace JwtAuthentication.Server

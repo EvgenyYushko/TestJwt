@@ -1,5 +1,0 @@
-D:\Внепроектная деятельность\TestJwt\JwtAuthentication.Server\bin\Debug\JwtAuthentication.Server.dll
-D:\Внепроектная деятельность\TestJwt\JwtAuthentication.Server\bin\Debug\JwtAuthentication.Server.pdb
-D:\Внепроектная деятельность\TestJwt\JwtAuthentication.Server\obj\Debug\JwtAuthentication.Server.csproj.CoreCompileInputs.cache
-D:\Внепроектная деятельность\TestJwt\JwtAuthentication.Server\obj\Debug\JwtAuthentication.Server.dll
-D:\Внепроектная деятельность\TestJwt\JwtAuthentication.Server\obj\Debug\JwtAuthentication.Server.pdb
