@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JwtAuthentication.Server.ServiceLayer.Models
+namespace JwtAuthentication.AuthorizeServer.ServiceLayer.Model
 {
 	public class LoginResponse
 	{

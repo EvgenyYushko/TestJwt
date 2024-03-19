@@ -1,4 +1,4 @@
-﻿namespace JwtAuthentication.Server.DataAccessLayer.Models
+﻿namespace JwtAuthentication.Server.DomainLayer.Models
 {
 	public class BookReview
 	{

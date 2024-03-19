@@ -5,11 +5,11 @@
     <LangVersion>9.0</LangVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DFB4EEE1-F419-41EA-B962-768580DD4D05}</ProjectGuid>
+    <ProjectGuid>{050002DD-63FB-4C57-9833-28B603F1ADB0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>JwtAuthentication.Server</RootNamespace>
-    <AssemblyName>JwtAuthentication.Server</AssemblyName>
+    <RootNamespace>JwtAuthentication.AuthorizeServer</RootNamespace>
+    <AssemblyName>JwtAuthentication.AuthorizeServer</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -91,23 +91,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BusinessLogicLayer\BookService.cs" />
-    <Compile Include="BusinessLogicLayer\UserService.cs" />
-    <Compile Include="DomainLayer\Models\BookReview.cs" />
-    <Compile Include="ServiceLayer\Models\RegistrationModel.cs" />
+    <Compile Include="BusinessLogicLayer\AuthenticationService.cs" />
     <Compile Include="InjectModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceLayer\Services\IBookService.cs" />
-    <Compile Include="ServiceLayer\Services\IUserService.cs" />
+    <Compile Include="ServiceLayer\Model\LoginModel.cs" />
+    <Compile Include="ServiceLayer\Model\LoginResponse.cs" />
+    <Compile Include="ServiceLayer\Model\RefreshModel.cs" />
+    <Compile Include="ServiceLayer\Services\IAuthenticationService.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JwtAuthentication.UserStorage\JwtAuthentication.UserStorage.csproj">
-      <Project>{7E3DB090-24B2-44AC-AD1C-106351887991}</Project>
+      <Project>{7e3db090-24b2-44ac-ad1c-106351887991}</Project>
       <Name>JwtAuthentication.UserStorage</Name>
     </ProjectReference>
   </ItemGroup>

@@ -5,46 +5,22 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using JwtAuthentication.Server.ServiceLayer.Models;
-using JwtAuthentication.Server.ServiceLayer.Services;
+using JwtAuthentication.AuthorizeServer.ServiceLayer.Model;
+using JwtAuthentication.AuthorizeServer.ServiceLayer.Services;
+using JwtAuthentication.UserStorage.ServiceLayer.Services;
 using Microsoft.IdentityModel.Tokens;
 
-namespace JwtAuthentication.Server.BusinessLogicLayer
+namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 {
 	public class AuthenticationService : IAuthenticationService
 	{
-		private string SECRET_KEY = "test123";
+		private string SECRET_KEY = "test123dasdadasdasdasdasasdfasdfdas";
 
 		private readonly IUserManager _userManager;
 
 		public AuthenticationService(IUserManager userManager)
 		{
 			_userManager = userManager;
-		}
-
-		public async Task<bool> Register(RegistrationModel model)
-		{
-			var existingUser = await _userManager.FindByNameAsync(model.Username);
-
-			if (existingUser != null)
-			{
-				throw new Exception("User already exists.");
-			}
-
-			var newUser = new ServiceUser
-			{
-				UserName = model.Username
-			};
-
-			var result = await _userManager.CreateAsync(newUser, model.Password);
-			if (result)
-			{
-				return true;
-			}
-			else
-			{
-				throw new Exception("Failed to create user");
-			}
 		}
 
 		public async Task<LoginResponse> Login(LoginModel model)
@@ -75,7 +51,7 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 
 		public async Task<LoginResponse> Refresh(RefreshModel model)
 		{
-			var principal = GetPrincipalFromExpiredToken(model.AccessToken);
+			var principal = ValidateToken(model.AccessToken);
 
 			if (principal?.Identity?.Name is null)
 			{
@@ -102,14 +78,12 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 		public async Task<bool> Revoke()
 		{
 			var username = "test";
-
 			if (username is null)
 			{
 				throw new Exception("Unauthorized");
 			}
 
 			var user = await _userManager.FindByNameAsync(username);
-
 			if (user is null)
 			{
 				throw new Exception("Unauthorized");
@@ -121,7 +95,6 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 
 			return true;
 		}
-
 
 		private JwtSecurityToken GenerateJwt(string username)
 		{
@@ -135,8 +108,8 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 				SECRET_KEY ?? throw new InvalidOperationException("Secret not configured")));
 
 			var token = new JwtSecurityToken(
-				//issuer: _configuration["JWT:ValidIssuer"],
-				//audience: _configuration["JWT:ValidAudience"],
+				issuer: "Sample",
+				audience: "Sample",
 				expires: DateTime.UtcNow.AddSeconds(60),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
@@ -145,16 +118,18 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 			return token;
 		}
 
-		private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+		private ClaimsPrincipal? ValidateToken(string token)
 		{
 			var secret = SECRET_KEY ?? throw new InvalidOperationException("Secret not configured");
 
 			var validation = new TokenValidationParameters
 			{
-				//ValidIssuer = _configuration["JWT:ValidIssuer"],
-				//ValidAudience = _configuration["JWT:ValidAudience"],
+				ValidateLifetime = false, // Because there is no expiration in the generated token
+				ValidateAudience = false, // Because there is no audiance in the generated token
+				ValidateIssuer = false,   // Because there is no issuer in the generated token
+				ValidIssuer = "Sample",
+				ValidAudience = "Sample",
 				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
-				ValidateLifetime = false
 			};
 
 			return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);

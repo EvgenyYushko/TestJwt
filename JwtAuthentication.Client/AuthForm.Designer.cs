@@ -30,7 +30,7 @@ namespace AuthJwt
 		private void InitializeComponent()
 		{
 			this.tbLogin = new System.Windows.Forms.TextBox();
-			this.tbOk = new System.Windows.Forms.Button();
+			this.tbRegister = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.tbPassword = new System.Windows.Forms.TextBox();
@@ -45,15 +45,15 @@ namespace AuthJwt
 			this.tbLogin.Size = new System.Drawing.Size(100, 20);
 			this.tbLogin.TabIndex = 0;
 			// 
-			// tbOk
+			// tbRegister
 			// 
-			this.tbOk.Location = new System.Drawing.Point(190, 9);
-			this.tbOk.Name = "tbOk";
-			this.tbOk.Size = new System.Drawing.Size(85, 20);
-			this.tbOk.TabIndex = 1;
-			this.tbOk.Text = "Регистрация";
-			this.tbOk.UseVisualStyleBackColor = true;
-			this.tbOk.Click += new System.EventHandler(this.tbOk_Click);
+			this.tbRegister.Location = new System.Drawing.Point(190, 9);
+			this.tbRegister.Name = "tbRegister";
+			this.tbRegister.Size = new System.Drawing.Size(85, 20);
+			this.tbRegister.TabIndex = 1;
+			this.tbRegister.Text = "Регистрация";
+			this.tbRegister.UseVisualStyleBackColor = true;
+			this.tbRegister.Click += new System.EventHandler(this.tbRegister_Click);
 			// 
 			// label1
 			// 
@@ -110,7 +110,7 @@ namespace AuthJwt
 			this.Controls.Add(this.tbPassword);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label1);
-			this.Controls.Add(this.tbOk);
+			this.Controls.Add(this.tbRegister);
 			this.Controls.Add(this.tbLogin);
 			this.Name = "AuthForm";
 			this.Text = "Jwt";
@@ -122,7 +122,7 @@ namespace AuthJwt
 		#endregion
 
 		private System.Windows.Forms.TextBox tbLogin;
-		private System.Windows.Forms.Button tbOk;
+		private System.Windows.Forms.Button tbRegister;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TextBox tbPassword;
