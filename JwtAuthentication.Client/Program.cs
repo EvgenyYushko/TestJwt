@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Autofac;
 
 namespace AuthJwt
 {
@@ -16,7 +14,20 @@ namespace AuthJwt
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new AuthForm());
+
+			var builder = new ContainerBuilder();
+			builder.RegisterModule<InjectModule>();
+
+			var container = builder.Build();
+
+			try
+			{
+				Application.Run(container.Resolve<AuthForm>());
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show(e.ToString());
+			}
 		}
 	}
 }

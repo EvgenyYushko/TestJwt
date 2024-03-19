@@ -92,7 +92,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusinessLogicLayer\AuthenticationService.cs" />
-    <Compile Include="DataAccessLayer\Models\BookReview.cs" />
+    <Compile Include="BusinessLogicLayer\UserManager.cs" />
+    <Compile Include="DataAccessLayer\UserStorage.cs" />
+    <Compile Include="DomainLayer\IUserStorage.cs" />
+    <Compile Include="DomainLayer\Models\BookReview.cs" />
     <Compile Include="ServiceLayer\Models\ServiceUser.cs" />
     <Compile Include="ServiceLayer\Models\LoginModel.cs" />
     <Compile Include="ServiceLayer\Models\LoginResponse.cs" />
@@ -101,10 +104,9 @@
     <Compile Include="ServiceLayer\Services\IAuthenticationService.cs" />
     <Compile Include="InjectModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceLayer\Services\IUserManager.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DomainLayer\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
