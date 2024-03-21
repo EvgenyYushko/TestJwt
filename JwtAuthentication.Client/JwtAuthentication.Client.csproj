@@ -116,10 +116,6 @@
       <Project>{dfb4eee1-f419-41ea-b962-768580dd4d05}</Project>
       <Name>JwtAuthentication.Server</Name>
     </ProjectReference>
-    <ProjectReference Include="..\JwtAuthentication.UserStorage\JwtAuthentication.UserStorage.csproj">
-      <Project>{7e3db090-24b2-44ac-ad1c-106351887991}</Project>
-      <Name>JwtAuthentication.UserStorage</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

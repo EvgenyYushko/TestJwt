@@ -9,7 +9,6 @@ namespace AuthJwt
 			builder.RegisterType<AuthForm>().AsSelf();
 			builder.RegisterModule<JwtAuthentication.Server.InjectModule>();
 			builder.RegisterModule<JwtAuthentication.AuthorizeServer.InjectModule>();
-			builder.RegisterModule<JwtAuthentication.UserStorage.InjectModule>();
 		}
 	}
 }

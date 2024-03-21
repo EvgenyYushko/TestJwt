@@ -7,81 +7,104 @@ using System.Text;
 using System.Threading.Tasks;
 using JwtAuthentication.AuthorizeServer.ServiceLayer.Model;
 using JwtAuthentication.AuthorizeServer.ServiceLayer.Services;
-using JwtAuthentication.UserStorage.ServiceLayer.Services;
 using Microsoft.IdentityModel.Tokens;
 
 namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 {
 	public class AuthenticationService : IAuthenticationService
 	{
-		private string SECRET_KEY = "test123dasdadasdasdasdasasdfasdfdas";
+		private readonly string SECRET_KEY = "test123dasdadasdasdasdasasdfasdfdas";
+		private readonly IUserService _userService;
+		private readonly int REFRESH_TOKEN_EXPIRY_MINUNES = 5;
+		private readonly int ACCESS_TOKEN_EXPIRY_MINUNES = 1;
 
-		private readonly IUserManager _userManager;
-
-		public AuthenticationService(IUserManager userManager)
+		public AuthenticationService(IUserService userService)
 		{
-			_userManager = userManager;
+			_userService = userService;
 		}
 
-		public async Task<LoginResponse> Login(LoginModel model)
+		public async Task<bool> Register(UserClient userClient)
 		{
-			var user = await _userManager.FindByName(model.Username);
+			var userDto = await _userService.FindByName(userClient.Username);
+			if (userDto != null)
+			{
+				throw new Exception("User already exists.");
+			}
 
-			if (user == null || !await _userManager.CheckPassword(user, model.Password))
+			var newUser = new UserDto
+			{
+				UserName = userClient.Username
+			};
+
+			var isCreated = await _userService.Create(newUser, userClient.Password);
+			if (!isCreated)
+			{
+				throw new Exception("Failed to create user");
+			}
+
+			return true;
+		}
+
+		public async Task<UserServer> Login(UserClient userClient)
+		{
+			var userDto = await _userService.FindByName(userClient.Username);
+
+			if (userDto == null || !await _userService.CheckPassword(userDto, userClient.Password))
 			{
 				throw new Exception("Unauthorized");
 			}
 
-			var jwtToken = GenerateJwt(model.Username);
-			var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
-			var refreshToken = GenerateRefreshToken();
+			var token = GenerateTokenForUser(userClient.Username, userDto);
 
-			user.AccessToken = accessToken;
-			user.RefreshToken = refreshToken;
-			user.RefreshTokenExpiry = DateTime.Now.AddMinutes(5);
+			await _userService.Update(userDto);
 
-			await _userManager.Update(user);
-
-			return new LoginResponse
+			return new UserServer
 			{
-				AccessToken = accessToken,
-				Expiration = jwtToken.ValidTo,
-				RefreshToken = refreshToken
+				AccessToken = token.accessToken,
+				Expiration = token.validTo,
+				RefreshToken = token.refreshToken
 			};
 		}
-
-		public async Task<LoginResponse> Refresh(RefreshModel model)
+		
+		public async Task<UserServer> Refresh(UserClient userClient)
 		{
-			var principal = GetPrincipalFromExpiredToken(model.AccessToken);
+			var principal = GetPrincipalFromExpiredToken(userClient.AccessToken);
 
 			if (principal?.Identity?.Name is null)
 			{
-				throw new Exception("Unauthorized");
+				throw new Exception("Unauthorized. Access token invalid");
 			}
 
-			var user = await _userManager.FindByName(principal.Identity.Name);
+			var user = await _userService.FindByName(principal.Identity.Name);
 
-			if (user is null || user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
+			if (user is null || user.RefreshToken != userClient.RefreshToken || user.RefreshTokenExpiry < DateTime.Now)
 			{
 				throw new Exception("Unauthorized");
 			}
 
-			var token = GenerateJwt(principal.Identity.Name);
-			var refreshToken = GenerateRefreshToken();
-			var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+			var token = GenerateTokenForUser(principal.Identity.Name, user);
 
-			user.AccessToken = accessToken;
-			user.RefreshToken = refreshToken;
-			user.RefreshTokenExpiry = DateTime.Now.AddMinutes(5);
+			await _userService.Update(user);
 
-			await _userManager.Update(user);
-
-			return new LoginResponse
+			return new UserServer
 			{
-				AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-				Expiration = token.ValidTo,
-				RefreshToken = refreshToken
+				AccessToken = token.accessToken,
+				Expiration = token.validTo,
+				RefreshToken = token.refreshToken
 			};
+		}
+
+		private (string accessToken, DateTime validTo, string refreshToken) GenerateTokenForUser(string userName, UserDto userDto)
+		{
+			var jwtToken = GenerateJwt(userName);
+			var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+			var refreshToken = GenerateRefreshToken();
+
+			userDto.AccessToken = accessToken;
+			userDto.RefreshToken = refreshToken;
+			userDto.RefreshTokenExpiry = DateTime.Now.AddMinutes(REFRESH_TOKEN_EXPIRY_MINUNES);
+
+			return (accessToken, jwtToken.ValidTo, refreshToken);
 		}
 
 		public async Task<bool> Revoke(string token)
@@ -93,15 +116,55 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				throw new Exception("Unauthorized");
 			}
 
-			var user = await _userManager.FindByName(principal.Identity.Name);
+			var user = await _userService.FindByName(principal.Identity.Name);
 
 			user.AccessToken = null;
 			user.RefreshToken = null;
 			user.RefreshTokenExpiry = null;
 
-			await _userManager.Update(user);
+			await _userService.Update(user);
 
 			return true;
+		}
+
+		public async Task<bool> CheckToken(string authToken)
+		{
+			ClaimsPrincipal principal;
+			try
+			{ 
+				principal = ValidateToken(authToken);
+				var user = await _userService.FindByName(principal.Identity.Name);
+
+				//todo доставать самый послений токен и сравнивать с текущим , если пришёл не последний значит злоумишлинник
+				if (user.AccessToken is null)
+				{
+					throw new Exception("Non actual token");
+				}
+			}
+			catch (SecurityTokenException e)
+			{
+				return false;
+			}
+
+			return principal?.Identity?.Name is not null;
+		}
+
+		private ClaimsPrincipal? ValidateToken(string token)
+		{
+			var secret = SECRET_KEY ?? throw new InvalidOperationException("Secret not configured");
+
+			var validation = new TokenValidationParameters
+			{
+				ValidateLifetime = true, 
+				LifetimeValidator = (_, expires, _, _) => expires >= DateTime.Now,
+				ValidateAudience = true, 
+				ValidateIssuer = true,   
+				ValidIssuer = "Sample",
+				ValidAudience = "Sample",
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+			};
+
+			return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
 		}
 
 		private JwtSecurityToken GenerateJwt(string username)
@@ -114,12 +177,11 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 
 			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SECRET_KEY));
 
-			var d = DateTime.SpecifyKind(DateTime.Now.AddSeconds(20), DateTimeKind.Utc);
 			var token = new JwtSecurityToken
 			(
 				issuer: "Sample",
 				audience: "Sample",
-				expires: d,
+				expires: DateTime.SpecifyKind(DateTime.Now.AddMinutes(ACCESS_TOKEN_EXPIRY_MINUNES), DateTimeKind.Utc),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
 			);

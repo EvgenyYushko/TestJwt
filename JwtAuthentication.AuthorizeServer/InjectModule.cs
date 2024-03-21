@@ -8,6 +8,7 @@ namespace JwtAuthentication.AuthorizeServer
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
+			builder.RegisterType<UserService>().As<IUserService>();
 			builder.RegisterType<AuthenticationService>().As<IAuthenticationService>();
 			builder.RegisterModule<UserStorage.InjectModule>();
 		}

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using JwtAuthentication.AuthorizeServer.ServiceLayer.Model;
 using JwtAuthentication.AuthorizeServer.ServiceLayer.Services;
-using JwtAuthentication.Server.ServiceLayer.Models;
 using JwtAuthentication.Server.ServiceLayer.Services;
 
 namespace AuthJwt
@@ -11,17 +10,14 @@ namespace AuthJwt
 	public partial class AuthForm : Form
 	{
 		private readonly IAuthenticationService _authenticationService;
-		private readonly IUserService _userService;
 		private readonly IBookService _bookService;
 
-		private LoginResponse User { get; set; }
+		private UserClient User { get; set; }
 
 		public AuthForm(IAuthenticationService authenticationService
-			, IUserService userService
 			, IBookService bookService)
 		{
 			_authenticationService = authenticationService;
-			_userService = userService;
 			_bookService = bookService;
 			InitializeComponent();
 		}
@@ -30,14 +26,15 @@ namespace AuthJwt
 		{
 			try
 			{
-				var regModel = new RegistrationModel
+				var userClient = new UserClient
 				{
 					Username = tbLogin.Text,
 					Password = tbPassword.Text,
 					Email = "default@mail.ru"
 				};
 
-				var res = Task.Run(async () => await _userService.Register(regModel)).Result;
+				var res = Task.Run(async () => await _authenticationService.Register(userClient)).Result;
+				MessageBox.Show($"Пользователь \"{userClient.Username}\" зарегистрирован", "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			catch (Exception ex)
 			{
@@ -49,14 +46,19 @@ namespace AuthJwt
 		{
 			try
 			{
-				var loginModel = new LoginModel
+				var userClient = new UserClient
 				{
 					Username = tbLogin.Text,
 					Password = tbPassword.Text
 				};
 
-				User = Task.Run(async () => await _authenticationService.Login(loginModel)).Result;
+				var userServer = Task.Run(async () => await _authenticationService.Login(userClient)).Result;
+				
+				UserServerToClient(userServer, userClient);
 
+				User = userClient;
+
+				MessageBox.Show($"Пользователь \"{userClient.Username}\" успешно вошёл в систему", "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			catch (Exception ex)
 			{
@@ -68,8 +70,14 @@ namespace AuthJwt
 		{
 			try
 			{
-				var bookContent = Task.Run(async ()=> await _bookService.ReadBook(User?.AccessToken)).Result;
-				MessageBox.Show(bookContent.Title, "Книга", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				if (User.Expiration <= DateTime.Now)
+				{
+					var userServer = Task.Run(async ()=> await _authenticationService.Refresh(User)).Result;
+					UserServerToClient(userServer, User);
+				}
+
+				var bookContent = Task.Run(async ()=> await _bookService.ReadBook(464318, User?.AccessToken)).Result;
+				MessageBox.Show(bookContent.Title, "Получена Книга", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			catch (Exception ex)
 			{
@@ -81,14 +89,17 @@ namespace AuthJwt
 		{
 			try
 			{
-				var refreshModel = new RefreshModel
+				var userClient = new UserClient
 				{
 					AccessToken = User.AccessToken,
 					RefreshToken = User.RefreshToken
 				};
 
-				User = Task.Run(async () => await _authenticationService.Refresh(refreshModel)).Result;
+				var userServer = Task.Run(async () => await _authenticationService.Refresh(userClient)).Result;
 
+				UserServerToClient(userServer, userClient);
+
+				User = userClient;
 			}
 			catch (Exception ex)
 			{
@@ -98,14 +109,36 @@ namespace AuthJwt
 
 		private void btRevokeToken_Click(object sender, EventArgs e)
 		{
+			Logoff(User);
+		}
+
+		private void AuthForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			Logoff(User);
+		}
+
+		private void Logoff(UserClient userClient)
+		{
+			if (userClient is null)
+			{
+				return;
+			}
+
 			try
 			{
-				var res = Task.Run(async () => await _authenticationService.Revoke(User.AccessToken)).Result;
+				var res = Task.Run(async () => await _authenticationService.Revoke(userClient.AccessToken)).Result;
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show(ex.InnerException.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+		}
+
+		private void UserServerToClient(UserServer userServer, UserClient userClient)
+		{
+			userClient.AccessToken = userServer.AccessToken;
+			userClient.RefreshToken = userServer.RefreshToken;
+			userClient.Expiration = userServer.Expiration;
 		}
 	}
 }

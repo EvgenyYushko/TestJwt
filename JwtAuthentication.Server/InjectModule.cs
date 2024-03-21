@@ -1,5 +1,7 @@
 ﻿using Autofac;
 using JwtAuthentication.Server.BusinessLogicLayer;
+using JwtAuthentication.Server.DataAccessLayes.Repositories;
+using JwtAuthentication.Server.DomainLayer.Repositories;
 using JwtAuthentication.Server.ServiceLayer.Services;
 
 namespace JwtAuthentication.Server
@@ -8,7 +10,7 @@ namespace JwtAuthentication.Server
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterType<UserService>().As<IUserService>();
+			builder.RegisterType<BookRepository>().As<IBookRepository>();
 			builder.RegisterType<BookService>().As<IBookService>();
 		}
 	}

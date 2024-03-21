@@ -67,13 +67,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BusinessLogicLayer\UserManager.cs" />
     <Compile Include="DomainLayer\Models\UserDbo.cs" />
     <Compile Include="DataAccessLayer\UserStorage.cs" />
     <Compile Include="InjectModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceLayer\Model\ServerUser.cs" />
-    <Compile Include="ServiceLayer\Services\IUserManager.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

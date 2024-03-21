@@ -92,13 +92,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusinessLogicLayer\BookService.cs" />
-    <Compile Include="BusinessLogicLayer\UserService.cs" />
-    <Compile Include="DomainLayer\Models\BookReview.cs" />
-    <Compile Include="ServiceLayer\Models\RegistrationModel.cs" />
+    <Compile Include="DataAccessLayes\Repositories\BookRepository.cs" />
+    <Compile Include="DomainLayer\Models\BookDbo.cs" />
+    <Compile Include="DomainLayer\Repositories\IBookRepository.cs" />
+    <Compile Include="ServiceLayer\Models\BookDto.cs" />
     <Compile Include="InjectModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLayer\Services\IBookService.cs" />
-    <Compile Include="ServiceLayer\Services\IUserService.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -106,9 +106,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JwtAuthentication.UserStorage\JwtAuthentication.UserStorage.csproj">
-      <Project>{7E3DB090-24B2-44AC-AD1C-106351887991}</Project>
-      <Name>JwtAuthentication.UserStorage</Name>
+    <ProjectReference Include="..\JwtAuthentication.AuthorizeServer\JwtAuthentication.AuthorizeServer.csproj">
+      <Project>{050002dd-63fb-4c57-9833-28b603f1adb0}</Project>
+      <Name>JwtAuthentication.AuthorizeServer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

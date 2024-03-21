@@ -1,31 +1,38 @@
 ﻿using System;
 using System.Threading.Tasks;
-using JwtAuthentication.Server.DomainLayer.Models;
+using JwtAuthentication.AuthorizeServer.ServiceLayer.Services;
+using JwtAuthentication.Server.DomainLayer.Repositories;
+using JwtAuthentication.Server.ServiceLayer.Models;
 using JwtAuthentication.Server.ServiceLayer.Services;
 
 namespace JwtAuthentication.Server.BusinessLogicLayer
 {
 	public class BookService : IBookService
 	{
-		private readonly IUserService _userService;
+		private readonly IAuthenticationService _authenticationService;
+		private readonly IBookRepository _bookRepository;
 
-		public BookService(IUserService userService)
+		public BookService(IAuthenticationService authenticationService
+			, IBookRepository bookRepository)
 		{
-			_userService = userService;
+			_authenticationService = authenticationService;
+			_bookRepository = bookRepository;
 		}
 
-		public async Task<BookReview> ReadBook(string acessToken)
+		public async Task<BookDto> ReadBook(long id, string acessToken)
 		{
-			if (!await _userService.CheckToken(acessToken))
+			if (!await _authenticationService.CheckToken(acessToken))
 			{
 				throw new Exception("Unauthorized");
 			}
 
-			return new BookReview
+			var bookDbo = await _bookRepository.ReadBook(id);
+
+			return new BookDto
 			{
-				Id = 1,
-				Rating = 10,
-				Title = "Book title"
+				Id = bookDbo.Id,
+				Rating = bookDbo.Rating,
+				Title = bookDbo.Title
 			};
 		}
 	}

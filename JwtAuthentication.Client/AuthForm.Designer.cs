@@ -138,6 +138,7 @@ namespace AuthJwt
 			this.Controls.Add(this.tbLogin);
 			this.Name = "AuthForm";
 			this.Text = "Jwt";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AuthForm_FormClosing);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

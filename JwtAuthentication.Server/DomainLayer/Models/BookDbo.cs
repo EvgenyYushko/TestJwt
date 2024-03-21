@@ -1,6 +1,6 @@
 ﻿namespace JwtAuthentication.Server.DomainLayer.Models
 {
-	public class BookReview
+	public class BookDbo
 	{
 		public int Id { get; set; }
 		public string Title { get; set; }
