@@ -25,40 +25,41 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 
 		public async Task<LoginResponse> Login(LoginModel model)
 		{
-			var user = await _userManager.FindByNameAsync(model.Username);
+			var user = await _userManager.FindByName(model.Username);
 
-			if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+			if (user == null || !await _userManager.CheckPassword(user, model.Password))
 			{
 				throw new Exception("Unauthorized");
 			}
 
-			JwtSecurityToken token = GenerateJwt(model.Username);
-
+			var jwtToken = GenerateJwt(model.Username);
+			var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
 			var refreshToken = GenerateRefreshToken();
 
+			user.AccessToken = accessToken;
 			user.RefreshToken = refreshToken;
-			user.RefreshTokenExpiry = DateTime.UtcNow.AddMinutes(5);
+			user.RefreshTokenExpiry = DateTime.Now.AddMinutes(5);
 
-			await _userManager.UpdateAsync(user);
+			await _userManager.Update(user);
 
 			return new LoginResponse
 			{
-				JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
-				Expiration = token.ValidTo,
+				AccessToken = accessToken,
+				Expiration = jwtToken.ValidTo,
 				RefreshToken = refreshToken
 			};
 		}
 
 		public async Task<LoginResponse> Refresh(RefreshModel model)
 		{
-			var principal = ValidateToken(model.AccessToken);
+			var principal = GetPrincipalFromExpiredToken(model.AccessToken);
 
 			if (principal?.Identity?.Name is null)
 			{
 				throw new Exception("Unauthorized");
 			}
 
-			var user = await _userManager.FindByNameAsync(principal.Identity.Name);
+			var user = await _userManager.FindByName(principal.Identity.Name);
 
 			if (user is null || user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
 			{
@@ -66,32 +67,39 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			}
 
 			var token = GenerateJwt(principal.Identity.Name);
+			var refreshToken = GenerateRefreshToken();
+			var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+
+			user.AccessToken = accessToken;
+			user.RefreshToken = refreshToken;
+			user.RefreshTokenExpiry = DateTime.Now.AddMinutes(5);
+
+			await _userManager.Update(user);
 
 			return new LoginResponse
 			{
-				JwtToken = new JwtSecurityTokenHandler().WriteToken(token),
+				AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
 				Expiration = token.ValidTo,
-				RefreshToken = model.RefreshToken
+				RefreshToken = refreshToken
 			};
 		}
 
-		public async Task<bool> Revoke()
+		public async Task<bool> Revoke(string token)
 		{
-			var username = "test";
-			if (username is null)
+			var principal = GetPrincipalFromExpiredToken(token);
+
+			if (principal?.Identity?.Name is null)
 			{
 				throw new Exception("Unauthorized");
 			}
 
-			var user = await _userManager.FindByNameAsync(username);
-			if (user is null)
-			{
-				throw new Exception("Unauthorized");
-			}
+			var user = await _userManager.FindByName(principal.Identity.Name);
 
+			user.AccessToken = null;
 			user.RefreshToken = null;
+			user.RefreshTokenExpiry = null;
 
-			await _userManager.UpdateAsync(user);
+			await _userManager.Update(user);
 
 			return true;
 		}
@@ -104,13 +112,14 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 			};
 
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-				SECRET_KEY ?? throw new InvalidOperationException("Secret not configured")));
+			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SECRET_KEY));
 
-			var token = new JwtSecurityToken(
+			var d = DateTime.SpecifyKind(DateTime.Now.AddSeconds(20), DateTimeKind.Utc);
+			var token = new JwtSecurityToken
+			(
 				issuer: "Sample",
 				audience: "Sample",
-				expires: DateTime.UtcNow.AddSeconds(60),
+				expires: d,
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
 			);
@@ -118,10 +127,8 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			return token;
 		}
 
-		private ClaimsPrincipal? ValidateToken(string token)
+		private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
 		{
-			var secret = SECRET_KEY ?? throw new InvalidOperationException("Secret not configured");
-
 			var validation = new TokenValidationParameters
 			{
 				ValidateLifetime = false, // Because there is no expiration in the generated token
@@ -129,7 +136,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				ValidateIssuer = false,   // Because there is no issuer in the generated token
 				ValidIssuer = "Sample",
 				ValidAudience = "Sample",
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SECRET_KEY)),
 			};
 
 			return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);

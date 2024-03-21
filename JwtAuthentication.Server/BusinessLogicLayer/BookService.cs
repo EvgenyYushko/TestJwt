@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using JwtAuthentication.Server.DomainLayer.Models;
 using JwtAuthentication.Server.ServiceLayer.Services;
 
@@ -13,9 +14,9 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 			_userService = userService;
 		}
 
-		public BookReview ReadBook(string acessToken)
+		public async Task<BookReview> ReadBook(string acessToken)
 		{
-			if (!_userService.CheckToken(acessToken))
+			if (!await _userService.CheckToken(acessToken))
 			{
 				throw new Exception("Unauthorized");
 			}

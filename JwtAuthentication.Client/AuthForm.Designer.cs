@@ -36,6 +36,8 @@ namespace AuthJwt
 			this.tbPassword = new System.Windows.Forms.TextBox();
 			this.tbAction = new System.Windows.Forms.Button();
 			this.btLogin = new System.Windows.Forms.Button();
+			this.btRefreshToken = new System.Windows.Forms.Button();
+			this.btRevokeToken = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// tbLogin
@@ -100,11 +102,33 @@ namespace AuthJwt
 			this.btLogin.UseVisualStyleBackColor = true;
 			this.btLogin.Click += new System.EventHandler(this.btLogin_Click);
 			// 
+			// btRefreshToken
+			// 
+			this.btRefreshToken.Location = new System.Drawing.Point(281, 8);
+			this.btRefreshToken.Name = "btRefreshToken";
+			this.btRefreshToken.Size = new System.Drawing.Size(104, 20);
+			this.btRefreshToken.TabIndex = 7;
+			this.btRefreshToken.Text = "Refresh Token";
+			this.btRefreshToken.UseVisualStyleBackColor = true;
+			this.btRefreshToken.Click += new System.EventHandler(this.btRefreshToken_Click);
+			// 
+			// btRevokeToken
+			// 
+			this.btRevokeToken.Location = new System.Drawing.Point(281, 37);
+			this.btRevokeToken.Name = "btRevokeToken";
+			this.btRevokeToken.Size = new System.Drawing.Size(104, 20);
+			this.btRevokeToken.TabIndex = 8;
+			this.btRevokeToken.Text = "Revoke Token";
+			this.btRevokeToken.UseVisualStyleBackColor = true;
+			this.btRevokeToken.Click += new System.EventHandler(this.btRevokeToken_Click);
+			// 
 			// AuthForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(287, 133);
+			this.ClientSize = new System.Drawing.Size(397, 133);
+			this.Controls.Add(this.btRevokeToken);
+			this.Controls.Add(this.btRefreshToken);
 			this.Controls.Add(this.btLogin);
 			this.Controls.Add(this.tbAction);
 			this.Controls.Add(this.tbPassword);
@@ -128,6 +152,8 @@ namespace AuthJwt
 		private System.Windows.Forms.TextBox tbPassword;
 		private System.Windows.Forms.Button tbAction;
 		private System.Windows.Forms.Button btLogin;
+		private System.Windows.Forms.Button btRefreshToken;
+		private System.Windows.Forms.Button btRevokeToken;
 	}
 }
 

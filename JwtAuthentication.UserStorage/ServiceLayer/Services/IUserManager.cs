@@ -5,9 +5,9 @@ namespace JwtAuthentication.UserStorage.ServiceLayer.Services
 {
 	public interface IUserManager
 	{
-		Task<ServerUser> FindByNameAsync(string userName);
-		Task<bool> CreateAsync(ServerUser user, string password);
-		Task<bool> CheckPasswordAsync(ServerUser user, string password);
-		Task UpdateAsync(ServerUser user);
+		Task<ServerUser> FindByName(string userName);
+		Task<bool> Create(ServerUser user, string password);
+		Task<bool> CheckPassword(ServerUser user, string password);
+		Task Update(ServerUser user);
 	}
 }

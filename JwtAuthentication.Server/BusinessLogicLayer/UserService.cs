@@ -24,7 +24,7 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 
 		public async Task<bool> Register(RegistrationModel model)
 		{
-			var existingUser = await _userManager.FindByNameAsync(model.Username);
+			var existingUser = await _userManager.FindByName(model.Username);
 			if (existingUser != null)
 			{
 				throw new Exception("User already exists.");
@@ -35,7 +35,7 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 				UserName = model.Username
 			};
 
-			var result = await _userManager.CreateAsync(newUser, model.Password);
+			var result = await _userManager.Create(newUser, model.Password);
 			if (result)
 			{
 				return true;
@@ -44,9 +44,25 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 			throw new Exception("Failed to create user");
 		}
 
-		public bool CheckToken(string authToken)
+		public async Task<bool> CheckToken(string authToken)
 		{
-			var principal = ValidateToken(authToken);
+			ClaimsPrincipal principal;
+			try
+			{ 
+				principal = ValidateToken(authToken);
+				var user = await _userManager.FindByName(principal.Identity.Name);
+
+				//todo доставать самый послений токен и сравнивать с текущим , если пришёл не последний значит злоумишлинник
+				if (user.AccessToken is null)
+				{
+					throw new Exception("Non actual token");
+				}
+			}
+			catch (SecurityTokenException e)
+			{
+				return false;
+			}
+
 			return principal?.Identity?.Name is not null;
 		}
 
@@ -56,9 +72,10 @@ namespace JwtAuthentication.Server.BusinessLogicLayer
 
 			var validation = new TokenValidationParameters
 			{
-				ValidateLifetime = true, // Because there is no expiration in the generated token
-				ValidateAudience = false, // Because there is no audiance in the generated token
-				ValidateIssuer = false,   // Because there is no issuer in the generated token
+				ValidateLifetime = true, 
+				LifetimeValidator = (_, expires, _, _) => expires >= DateTime.Now,
+				ValidateAudience = true, 
+				ValidateIssuer = true,   
 				ValidIssuer = "Sample",
 				ValidAudience = "Sample",
 				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),

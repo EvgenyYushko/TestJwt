@@ -41,7 +41,7 @@ namespace AuthJwt
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show(ex.InnerException.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace AuthJwt
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show(ex.InnerException.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
@@ -68,12 +68,43 @@ namespace AuthJwt
 		{
 			try
 			{
-				var bookContent = _bookService.ReadBook(User.JwtToken);
+				var bookContent = Task.Run(async ()=> await _bookService.ReadBook(User?.AccessToken)).Result;
 				MessageBox.Show(bookContent.Title, "Книга", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(ex.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show(ex.InnerException.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
+		private void btRefreshToken_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				var refreshModel = new RefreshModel
+				{
+					AccessToken = User.AccessToken,
+					RefreshToken = User.RefreshToken
+				};
+
+				User = Task.Run(async () => await _authenticationService.Refresh(refreshModel)).Result;
+
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.InnerException.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
+		private void btRevokeToken_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				var res = Task.Run(async () => await _authenticationService.Revoke(User.AccessToken)).Result;
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.InnerException.Message, "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 	}

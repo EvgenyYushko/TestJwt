@@ -7,6 +7,6 @@ namespace JwtAuthentication.Server.ServiceLayer.Services
 	{
 		Task<bool> Register(RegistrationModel model);
 
-		bool CheckToken(string authToken);
+		Task<bool> CheckToken(string authToken);
 	}
 }

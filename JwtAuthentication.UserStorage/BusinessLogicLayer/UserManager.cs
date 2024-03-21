@@ -14,7 +14,7 @@ namespace JwtAuthentication.UserStorage.BusinessLogicLayer
 			_userStorage = userStorage;
 		}
 
-		public Task<ServerUser> FindByNameAsync(string userName)
+		public Task<ServerUser> FindByName(string userName)
 		{
 			if (!_userStorage.Users.TryGetValue(userName, out var userDbo))
 			{
@@ -24,16 +24,18 @@ namespace JwtAuthentication.UserStorage.BusinessLogicLayer
 			return Task.FromResult(new ServerUser
 			{
 				UserName = userDbo.UserName,
+				AccessToken = userDbo.AccessToken,
 				RefreshToken = userDbo.RefreshToken,
 				RefreshTokenExpiry = userDbo.RefreshTokenExpiry
 			});
 		}
 
-		public Task<bool> CreateAsync(ServerUser user, string password)
+		public Task<bool> Create(ServerUser user, string password)
 		{
 			_userStorage.Users.Add(user.UserName, new UserDbo
 			{
 				UserName = user.UserName,
+				AccessToken = user.AccessToken,
 				RefreshToken = user.RefreshToken,
 				RefreshTokenExpiry = user.RefreshTokenExpiry,
 				Password = password
@@ -42,7 +44,7 @@ namespace JwtAuthentication.UserStorage.BusinessLogicLayer
 			return Task.FromResult(true);
 		}
 
-		public Task<bool> CheckPasswordAsync(ServerUser user, string password)
+		public Task<bool> CheckPassword(ServerUser user, string password)
 		{
 			if (!_userStorage.Users.TryGetValue(user.UserName, out var userDbo))
 			{
@@ -51,11 +53,12 @@ namespace JwtAuthentication.UserStorage.BusinessLogicLayer
 			return Task.FromResult(password == userDbo.Password);
 		}
 
-		public Task UpdateAsync(ServerUser user)
+		public Task Update(ServerUser user)
 		{
 			if (_userStorage.Users.TryGetValue(user.UserName, out var userDbo))
 			{
 				userDbo.UserName = user.UserName;
+				userDbo.AccessToken = user.AccessToken;
 				userDbo.RefreshToken = user.RefreshToken;
 				userDbo.RefreshTokenExpiry = user.RefreshTokenExpiry;
 			}

@@ -9,6 +9,6 @@ namespace JwtAuthentication.AuthorizeServer.ServiceLayer.Services
 
 		public Task<LoginResponse> Refresh(RefreshModel model);
 
-		public Task<bool> Revoke();
+		public Task<bool> Revoke(string token);
 	}
 }
