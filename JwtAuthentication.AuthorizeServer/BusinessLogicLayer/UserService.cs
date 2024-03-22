@@ -50,6 +50,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			{
 				return Task.FromResult(false);
 			}
+
 			return Task.FromResult(password == userDbo.Password);
 		}
 

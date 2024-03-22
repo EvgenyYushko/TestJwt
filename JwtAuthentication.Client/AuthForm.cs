@@ -34,7 +34,8 @@ namespace AuthJwt
 				};
 
 				var res = Task.Run(async () => await _authenticationService.Register(userClient)).Result;
-				MessageBox.Show($"Пользователь \"{userClient.Username}\" зарегистрирован", "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show($"Пользователь \"{userClient.Username}\" зарегистрирован", "Сообщение",
+					MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			catch (Exception ex)
 			{
@@ -53,12 +54,13 @@ namespace AuthJwt
 				};
 
 				var userServer = Task.Run(async () => await _authenticationService.Login(userClient)).Result;
-				
+
 				UserServerToClient(userServer, userClient);
 
 				User = userClient;
 
-				MessageBox.Show($"Пользователь \"{userClient.Username}\" успешно вошёл в систему", "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				MessageBox.Show($"Пользователь \"{userClient.Username}\" успешно вошёл в систему", "Сообщение",
+					MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			catch (Exception ex)
 			{
@@ -72,11 +74,11 @@ namespace AuthJwt
 			{
 				if (User.Expiration <= DateTime.Now)
 				{
-					var userServer = Task.Run(async ()=> await _authenticationService.Refresh(User)).Result;
+					var userServer = Task.Run(async () => await _authenticationService.Refresh(User)).Result;
 					UserServerToClient(userServer, User);
 				}
 
-				var bookContent = Task.Run(async ()=> await _bookService.ReadBook(464318, User?.AccessToken)).Result;
+				var bookContent = Task.Run(async () => await _bookService.ReadBook(464318, User?.AccessToken)).Result;
 				MessageBox.Show(bookContent.Title, "Получена Книга", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 			catch (Exception ex)

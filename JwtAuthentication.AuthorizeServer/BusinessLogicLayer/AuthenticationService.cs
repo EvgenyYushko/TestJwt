@@ -65,7 +65,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				RefreshToken = token.refreshToken
 			};
 		}
-		
+
 		public async Task<UserServer> Refresh(UserClient userClient)
 		{
 			var principal = GetPrincipalFromExpiredToken(userClient.AccessToken);
@@ -131,7 +131,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 		{
 			ClaimsPrincipal principal;
 			try
-			{ 
+			{
 				principal = ValidateToken(authToken);
 				var user = await _userService.FindByName(principal.Identity.Name);
 
@@ -155,13 +155,13 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 
 			var validation = new TokenValidationParameters
 			{
-				ValidateLifetime = true, 
+				ValidateLifetime = true,
 				LifetimeValidator = (_, expires, _, _) => expires >= DateTime.Now,
-				ValidateAudience = true, 
-				ValidateIssuer = true,   
+				ValidateAudience = true,
+				ValidateIssuer = true,
 				ValidIssuer = "Sample",
 				ValidAudience = "Sample",
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
 			};
 
 			return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
@@ -171,8 +171,8 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 		{
 			var authClaims = new List<Claim>
 			{
-				new Claim(ClaimTypes.Name, username),
-				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+				new(ClaimTypes.Name, username),
+				new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 			};
 
 			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SECRET_KEY));
@@ -195,10 +195,10 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			{
 				ValidateLifetime = false, // Because there is no expiration in the generated token
 				ValidateAudience = false, // Because there is no audiance in the generated token
-				ValidateIssuer = false,   // Because there is no issuer in the generated token
+				ValidateIssuer = false, // Because there is no issuer in the generated token
 				ValidIssuer = "Sample",
 				ValidAudience = "Sample",
-				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SECRET_KEY)),
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SECRET_KEY))
 			};
 
 			return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
