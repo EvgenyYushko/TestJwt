@@ -95,6 +95,7 @@
     <Compile Include="BusinessLogicLayer\UserService.cs" />
     <Compile Include="InjectModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceLayer\Model\TokenModelDto.cs" />
     <Compile Include="ServiceLayer\Model\UserDto.cs" />
     <Compile Include="ServiceLayer\Model\UserServer.cs" />
     <Compile Include="ServiceLayer\Model\UserClient.cs" />

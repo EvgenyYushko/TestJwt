@@ -24,9 +24,12 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			return Task.FromResult(new UserDto
 			{
 				UserName = userDbo.UserName,
-				AccessToken = userDbo.AccessToken,
-				RefreshToken = userDbo.RefreshToken,
-				RefreshTokenExpiry = userDbo.RefreshTokenExpiry
+				TokenModel = new()
+				{
+					AccessToken = userDbo.TokenModel.AccessToken,
+					RefreshToken = userDbo.TokenModel.RefreshToken,
+					RefreshTokenExpiry = userDbo.TokenModel.RefreshTokenExpiry,
+				},
 			});
 		}
 
@@ -35,9 +38,12 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			_userStorage.Users.Add(userDto.UserName, new UserDbo
 			{
 				UserName = userDto.UserName,
-				AccessToken = userDto.AccessToken,
-				RefreshToken = userDto.RefreshToken,
-				RefreshTokenExpiry = userDto.RefreshTokenExpiry,
+				TokenModel = new()
+				{
+					AccessToken = userDto.TokenModel.AccessToken,
+					RefreshToken = userDto.TokenModel.RefreshToken,
+					RefreshTokenExpiry = userDto.TokenModel.RefreshTokenExpiry,
+				},
 				Password = password
 			});
 
@@ -59,9 +65,10 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			if (_userStorage.Users.TryGetValue(userDto.UserName, out var userDbo))
 			{
 				userDbo.UserName = userDto.UserName;
-				userDbo.AccessToken = userDto.AccessToken;
-				userDbo.RefreshToken = userDto.RefreshToken;
-				userDbo.RefreshTokenExpiry = userDto.RefreshTokenExpiry;
+				userDbo.TokenModel.AccessToken = userDto.TokenModel.AccessToken;
+				userDbo.TokenModel.AccessTokenExpiry = userDto.TokenModel.AccessTokenExpiry;
+				userDbo.TokenModel.RefreshToken = userDto.TokenModel.RefreshToken;
+				userDbo.TokenModel.RefreshTokenExpiry = userDto.TokenModel.RefreshTokenExpiry;
 			}
 
 			return Task.CompletedTask;

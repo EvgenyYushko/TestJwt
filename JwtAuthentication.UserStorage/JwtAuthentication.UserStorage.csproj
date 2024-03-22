@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DomainLayer\Models\TokenModelDbo.cs" />
     <Compile Include="DomainLayer\Models\UserDbo.cs" />
     <Compile Include="DataAccessLayer\UserStorage.cs" />
     <Compile Include="InjectModule.cs" />

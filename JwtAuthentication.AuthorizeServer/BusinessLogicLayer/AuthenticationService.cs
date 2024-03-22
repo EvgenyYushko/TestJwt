@@ -77,7 +77,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 
 			var user = await _userService.FindByName(principal.Identity.Name);
 
-			if (user is null || user.RefreshToken != userClient.RefreshToken || user.RefreshTokenExpiry < DateTime.Now)
+			if (user is null || user.TokenModel.RefreshToken != userClient.RefreshToken || user.TokenModel.RefreshTokenExpiry < DateTime.Now)
 			{
 				throw new Exception("Unauthorized");
 			}
@@ -100,9 +100,10 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
 			var refreshToken = GenerateRefreshToken();
 
-			userDto.AccessToken = accessToken;
-			userDto.RefreshToken = refreshToken;
-			userDto.RefreshTokenExpiry = DateTime.Now.AddMinutes(REFRESH_TOKEN_EXPIRY_MINUNES);
+			userDto.TokenModel.AccessToken = accessToken;
+			userDto.TokenModel.AccessTokenExpiry = jwtToken.ValidTo;
+			userDto.TokenModel.RefreshToken = refreshToken;
+			userDto.TokenModel.RefreshTokenExpiry = DateTime.Now.AddMinutes(REFRESH_TOKEN_EXPIRY_MINUNES);
 
 			return (accessToken, jwtToken.ValidTo, refreshToken);
 		}
@@ -118,9 +119,9 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 
 			var user = await _userService.FindByName(principal.Identity.Name);
 
-			user.AccessToken = null;
-			user.RefreshToken = null;
-			user.RefreshTokenExpiry = null;
+			user.TokenModel.AccessToken = null;
+			user.TokenModel.RefreshToken = null;
+			user.TokenModel.RefreshTokenExpiry = null;
 
 			await _userService.Update(user);
 
@@ -136,7 +137,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				var user = await _userService.FindByName(principal.Identity.Name);
 
 				//todo доставать самый послений токен и сравнивать с текущим , если пришёл не последний значит злоумишлинник
-				if (user.AccessToken is null)
+				if (user.TokenModel.AccessToken is null)
 				{
 					throw new Exception("Non actual token");
 				}
