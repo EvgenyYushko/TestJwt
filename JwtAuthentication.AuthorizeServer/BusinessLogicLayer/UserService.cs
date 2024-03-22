@@ -24,12 +24,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			return Task.FromResult(new UserDto
 			{
 				UserName = userDbo.UserName,
-				TokenModel = new()
-				{
-					AccessToken = userDbo.TokenModel.AccessToken,
-					RefreshToken = userDbo.TokenModel.RefreshToken,
-					RefreshTokenExpiry = userDbo.TokenModel.RefreshTokenExpiry,
-				},
+				TokenModel = ToDtoTokens(userDbo.TokenModel)
 			});
 		}
 
@@ -38,12 +33,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			_userStorage.Users.Add(userDto.UserName, new UserDbo
 			{
 				UserName = userDto.UserName,
-				TokenModel = new()
-				{
-					AccessToken = userDto.TokenModel.AccessToken,
-					RefreshToken = userDto.TokenModel.RefreshToken,
-					RefreshTokenExpiry = userDto.TokenModel.RefreshTokenExpiry,
-				},
+				//TokenModel = ToDboTokens(userDto.TokenModel),
 				Password = password
 			});
 
@@ -65,13 +55,56 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 			if (_userStorage.Users.TryGetValue(userDto.UserName, out var userDbo))
 			{
 				userDbo.UserName = userDto.UserName;
-				userDbo.TokenModel.AccessToken = userDto.TokenModel.AccessToken;
-				userDbo.TokenModel.AccessTokenExpiry = userDto.TokenModel.AccessTokenExpiry;
-				userDbo.TokenModel.RefreshToken = userDto.TokenModel.RefreshToken;
-				userDbo.TokenModel.RefreshTokenExpiry = userDto.TokenModel.RefreshTokenExpiry;
+				userDbo.TokenModel = ToDboTokens(userDto.TokenModel);
 			}
 
 			return Task.CompletedTask;
+		}
+
+		private TokenModelDbo ToDboTokens(TokenModelDto tokenDto)
+		{
+			if (tokenDto is null)
+			{
+				return null;
+			}
+
+			var tokenDbo = new TokenModelDbo
+			{
+				AccessToken = tokenDto.AccessToken,
+				AccessTokenExpiry = tokenDto.AccessTokenExpiry,
+				RefreshToken = tokenDto.RefreshToken,
+				RefreshTokenExpiry = tokenDto.RefreshTokenExpiry,
+			};
+
+			if (tokenDto.ParentToken is not null)
+			{
+				tokenDbo.ParentToken = ToDboTokens(tokenDto.ParentToken);
+			}
+
+			return tokenDbo;
+		}
+
+		private TokenModelDto ToDtoTokens(TokenModelDbo tokenDbo)
+		{
+			if (tokenDbo is null)
+			{
+				return null;
+			}
+
+			var tokenDto = new TokenModelDto
+			{
+				AccessToken = tokenDbo.AccessToken,
+				AccessTokenExpiry = tokenDbo.AccessTokenExpiry,
+				RefreshToken = tokenDbo.RefreshToken,
+				RefreshTokenExpiry = tokenDbo.RefreshTokenExpiry,
+			};
+
+			if (tokenDbo.ParentToken is not null)
+			{
+				tokenDto.ParentToken = ToDtoTokens(tokenDbo.ParentToken);
+			}
+
+			return tokenDto;
 		}
 	}
 }

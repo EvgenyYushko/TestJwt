@@ -15,8 +15,8 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 	{
 		private readonly string SECRET_KEY = "test123dasdadasdasdasdasasdfasdfdas";
 		private readonly IUserService _userService;
-		private readonly int REFRESH_TOKEN_EXPIRY_MINUNES = 5;
-		private readonly int ACCESS_TOKEN_EXPIRY_MINUNES = 1;
+		private readonly int REFRESH_TOKEN_EXPIRY_MINUNES = 10;
+		private readonly int ACCESS_TOKEN_EXPIRY_MINUNES = 5;
 
 		public AuthenticationService(IUserService userService)
 		{
@@ -54,15 +54,15 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				throw new Exception("Unauthorized");
 			}
 
-			var token = GenerateTokenForUser(userClient.Username, userDto);
-
+			var token = GenerateTokenForUser(userClient.Username);
+			userDto.TokenModel = token;
 			await _userService.Update(userDto);
 
 			return new UserServer
 			{
-				AccessToken = token.accessToken,
-				Expiration = token.validTo,
-				RefreshToken = token.refreshToken
+				AccessToken = token.AccessToken,
+				Expiration = token.AccessTokenExpiry,
+				RefreshToken = token.RefreshToken
 			};
 		}
 
@@ -82,30 +82,33 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				throw new Exception("Unauthorized");
 			}
 
-			var token = GenerateTokenForUser(principal.Identity.Name, user);
+			var token = GenerateTokenForUser(principal.Identity.Name);
+			token.ParentToken = user.TokenModel;
+			user.TokenModel = token;
 
 			await _userService.Update(user);
 
 			return new UserServer
 			{
-				AccessToken = token.accessToken,
-				Expiration = token.validTo,
-				RefreshToken = token.refreshToken
+				AccessToken = token.AccessToken,
+				Expiration = token.AccessTokenExpiry,
+				RefreshToken = token.RefreshToken
 			};
 		}
 
-		private (string accessToken, DateTime validTo, string refreshToken) GenerateTokenForUser(string userName, UserDto userDto)
+		private TokenModelDto GenerateTokenForUser(string userName)
 		{
 			var jwtToken = GenerateJwt(userName);
 			var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
 			var refreshToken = GenerateRefreshToken();
 
-			userDto.TokenModel.AccessToken = accessToken;
-			userDto.TokenModel.AccessTokenExpiry = jwtToken.ValidTo;
-			userDto.TokenModel.RefreshToken = refreshToken;
-			userDto.TokenModel.RefreshTokenExpiry = DateTime.Now.AddMinutes(REFRESH_TOKEN_EXPIRY_MINUNES);
-
-			return (accessToken, jwtToken.ValidTo, refreshToken);
+			return new TokenModelDto
+			{
+				AccessToken = accessToken,
+				AccessTokenExpiry = jwtToken.ValidTo,
+				RefreshToken = refreshToken,
+				RefreshTokenExpiry = DateTime.Now.AddMinutes(REFRESH_TOKEN_EXPIRY_MINUNES)
+			};
 		}
 
 		public async Task<bool> Revoke(string token)
@@ -119,9 +122,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 
 			var user = await _userService.FindByName(principal.Identity.Name);
 
-			user.TokenModel.AccessToken = null;
-			user.TokenModel.RefreshToken = null;
-			user.TokenModel.RefreshTokenExpiry = null;
+			user.TokenModel = null;
 
 			await _userService.Update(user);
 
@@ -137,7 +138,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 				var user = await _userService.FindByName(principal.Identity.Name);
 
 				//todo доставать самый послений токен и сравнивать с текущим , если пришёл не последний значит злоумишлинник
-				if (user.TokenModel.AccessToken is null)
+				if (user.TokenModel?.AccessToken != authToken)
 				{
 					throw new Exception("Non actual token");
 				}
