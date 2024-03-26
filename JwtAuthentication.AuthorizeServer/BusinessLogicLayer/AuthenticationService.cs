@@ -16,7 +16,7 @@ namespace JwtAuthentication.AuthorizeServer.BusinessLogicLayer
 		private readonly string SECRET_KEY = "test123dasdadasdasdasdasasdfasdfdas";
 		private readonly IUserService _userService;
 		private readonly int REFRESH_TOKEN_EXPIRY_MINUNES = 10;
-		private readonly int ACCESS_TOKEN_EXPIRY_MINUNES = 5;
+		private readonly int ACCESS_TOKEN_EXPIRY_MINUNES = 1;
 
 		public AuthenticationService(IUserService userService)
 		{
