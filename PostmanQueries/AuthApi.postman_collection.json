@@ -1,0 +1,92 @@
+{
+	"info": {
+		"_postman_id": "e04413a7-cd35-4f61-9227-5c853eeadedc",
+		"name": "AuthApi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"Test\",\r\n    \"password\": \"123\",\r\n    \"email\": null,\r\n    \"accessToken\": null,\r\n    \"refreshToken\": null,\r\n    \"expiration\": \"0001-01-01T00:00:00\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:44357/api/Auth/register",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44357",
+					"path": [
+						"api",
+						"Auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"Evgeny\",\r\n    \"password\": \"123\",\r\n    \"email\": null,\r\n    \"accessToken\": null,\r\n    \"refreshToken\": null,\r\n    \"expiration\": \"0001-01-01T00:00:00\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:44357/api/Auth/login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44357",
+					"path": [
+						"api",
+						"Auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ReadBook",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:44357/api/Auth/readbook",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44357",
+					"path": [
+						"api",
+						"Auth",
+						"readbook"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
