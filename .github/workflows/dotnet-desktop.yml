@@ -85,7 +85,7 @@ jobs:
       uses: NuGet/setup-nuget@v2.0.0
 
     - name: Setup NuGet.exe for use with actions
-      run: nuget restore TestJwt.JwtAuthentication"."Client.AuthJwt.sln 
+      run: nuget restore TestJwt/JwtAuthentication.Client/AuthJwt.sln 
               
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
