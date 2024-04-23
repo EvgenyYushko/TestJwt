@@ -24,7 +24,6 @@ namespace AuthJwt
 			{
 				Application.Run(container.Resolve<AuthForm>());
 			}
-			test
 			catch (Exception e)
 			{
 				MessageBox.Show(e.ToString());
