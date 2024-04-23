@@ -15,7 +15,7 @@ namespace AuthJwt
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			var builder = new ContainerBuilder();
+			var builder = new еееContainerBuilder();
 			builder.RegisterModule<InjectModule>();
 
 			var container = builder.Build();
