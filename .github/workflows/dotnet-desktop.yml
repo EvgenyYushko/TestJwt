@@ -78,8 +78,21 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     # Execute all unit tests in the solution
-    - name: Execute unit tests
-      run: dotnet test
+    #- name: Execute unit tests
+     # run: dotnet test
+
+    - name: Test
+      run: dotnet test --logger "trx;LogFileName=test-results.trx" || true
+
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: DotNET Tests
+        path: "**/test-results.trx"                            
+        reporter: dotnet-trx
+        fail-on-error: true
+
 
     - name: Setup NuGet.exe for use with actions
       uses: NuGet/setup-nuget@v2.0.0
