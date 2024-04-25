@@ -78,8 +78,8 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     # Execute all unit tests in the solution
-   # - name: Execute unit tests
-   #   run: dotnet test
+    - name: Execute unit tests
+      run: dotnet test
 
     - name: Setup NuGet.exe for use with actions
       uses: NuGet/setup-nuget@v2.0.0
