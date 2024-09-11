@@ -40,7 +40,7 @@ namespace JwtAuthentication.Api
 			//	options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 			//});
 
-			services.AddAuthentication("s")
+		//	services.AddAuthentication("s");
 
 			services.AddAuthentication(options =>
 			{
