@@ -27,16 +27,24 @@ namespace JwtAuthentication.Api.Controllers
 			_bookService = bookService;
 		}
 
+		/// <summary>
+		/// Регистрирует нового пользователя в системе.
+		/// </summary>
+		/// <param name="userClient">Данные пользователя для регистрации</param>
+		/// <returns>Зарегистрированные данные пользователя</returns>
 		[HttpPost]
 		[Route("register")]
 		public ActionResult Register([FromBody] UserClient userClient)
 		{
 			var res = Task.Run(async () => await _authenticationService.Register(userClient)).Result;
-
 			return Ok(userClient);
 		}
 
-
+		/// <summary>
+		/// Выполняет вход пользователя в систему.
+		/// </summary>
+		/// <param name="userClient">Учетные данные пользователя</param>
+		/// <returns>Данные пользователя с токенами доступа</returns>
 		[HttpPost]
 		[Route("login")]
 		public ActionResult Login([FromBody] UserClient userClient)
@@ -48,6 +56,12 @@ namespace JwtAuthentication.Api.Controllers
 			return Ok(userClient);
 		}
 		
+		/// <summary>
+		/// Читает содержимое книги по указанному идентификатору.
+		/// Обновляет токен доступа, если он истек.
+		/// </summary>
+		/// <param name="id">Идентификатор книги</param>
+		/// <returns>Содержимое книги</returns>
 		[HttpGet]
 		[Route("readbook")]
 		public ActionResult ReadBook(long id = 464318)
@@ -63,6 +77,10 @@ namespace JwtAuthentication.Api.Controllers
 			return Ok(bookContent);
 		}
 
+		/// <summary>
+		/// Обновляет токен доступа пользователя.
+		/// </summary>
+		/// <returns>Обновленные данные пользователя с новыми токенами</returns>
 		[HttpGet]
 		[Route("refreshtoken")]
 		public ActionResult RefreshToken()
@@ -82,6 +100,10 @@ namespace JwtAuthentication.Api.Controllers
 			return Ok(userClient);
 		}
 		
+		/// <summary>
+		/// Отзывает токен доступа пользователя, по сути выполняя выход из системы.
+		/// </summary>
+		/// <returns>Данные пользователя после выхода</returns>
 		[HttpGet]
 		[Route("revoke")]
 		public ActionResult Revoke()
@@ -97,6 +119,10 @@ namespace JwtAuthentication.Api.Controllers
 			return Ok(userClient);
 		}
 
+		/// <summary>
+		/// Выполняет выход пользователя из системы, отзывая его токен доступа.
+		/// </summary>
+		/// <param name="userClient">Данные пользователя для выхода</param>
 		private void Logoff(UserClient userClient)
 		{
 			if (userClient is null)
@@ -107,6 +133,11 @@ namespace JwtAuthentication.Api.Controllers
 			var res = Task.Run(async () => await _authenticationService.Revoke(userClient.AccessToken)).Result;
 		}
 
+		/// <summary>
+		/// Копирует данные аутентификации из серверной модели в клиентскую.
+		/// </summary>
+		/// <param name="userServer">Серверная модель пользователя</param>
+		/// <param name="userClient">Клиентская модель пользователя</param>
 		private void UserServerToClient(UserServer userServer, UserClient userClient)
 		{
 			userClient.AccessToken = userServer.AccessToken;
