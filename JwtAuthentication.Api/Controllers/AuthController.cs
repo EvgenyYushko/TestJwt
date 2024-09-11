@@ -28,7 +28,7 @@ namespace JwtAuthentication.Api.Controllers
 		}
 
 		/// <summary>
-		/// Регистрирует нового пользователя в системе.
+		/// Регистрирует нового пользователя в системе.ыыыы
 		/// </summary>
 		/// <param name="userClient">Данные пользователя для регистрации</param>
 		/// <returns>Зарегистрированные данные пользователя</returns>
