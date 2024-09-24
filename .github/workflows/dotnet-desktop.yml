@@ -112,6 +112,19 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
+# Шаг для запуска тестов
+    - name: Run Unit Tests
+      run: dotnet test $env:Solution_Name --logger "trx;LogFileName=test-results.trx"
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Шаг для публикации результатов тестов
+    - name: Publish Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: Test Results
+        path: "**/test-results.trx"
+
     # Decode the base 64 encoded pfx and save the Signing_Certificate
   #  - name: Decode the pfx
    #   run: |
